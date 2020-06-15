@@ -68,8 +68,9 @@ but you'll have to implement those three above instructions first!
 1. cpu.py
   - CPU constructor
   - memory array
-  - ALU method: takes care of mathetmatical operations
-  - trace method: Handy function to print out the CPU state.
+  - ALU method: takes care of mathetmatical operations; pre-written.
+  - load method is hard coded for day 1
+  - trace method: Handy function to print out the CPU state; pre-written.
   - run
 2. ls8.py
   - calls CPU class

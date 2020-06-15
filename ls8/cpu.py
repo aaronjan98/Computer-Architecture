@@ -5,9 +5,14 @@ import sys
 class CPU:
     """Main CPU class."""
 
-    def __init__(self):
+    # Memory Address Register (MAR) and Memory Data Register (MDR)
+    def __init__(self, MDR, MAR):
         """Construct a new CPU."""
-        pass
+        self.reg = [i * [0] for i in range(8)]
+        self.ram = [i * [0] for i in range(256)]
+        self.pc = 0
+        self.ram_read = MDR
+        self.ram_write = MAR
 
     def load(self):
         """Load a program into memory."""
