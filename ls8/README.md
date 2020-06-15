@@ -65,6 +65,25 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+1. cpu.py
+  - CPU constructor
+  - memory array
+  - ALU method: takes care of mathetmatical operations
+  - trace method: Handy function to print out the CPU state.
+  - run
+2. ls8.py
+  - calls CPU class
+    - load()
+    - run()
+3. LS8-spec.md has all the details, not easy to read.
+  - list of all the instructions that this machine supports
+  - 1st day, implement just 3 instructions.
+  - each of the instructions has a numeric representation
+  - LDI is save register; 3 bites
+4. examples directory
+  - these are programs that your emulator will be able to run. At least some of them w/o stretch.
+	- made up of numbers, some numbers are instructions
+
 ## Step 1: Add the constructor to `cpu.py`
 
 Add list properties to the `CPU` class to hold 256 bytes of memory and 8
