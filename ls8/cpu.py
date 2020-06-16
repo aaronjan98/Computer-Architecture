@@ -21,22 +21,25 @@ class CPU:
         filename = sys.argv[1]
 
         # check to make sure the user has put a command line argument where you expect, and print an error and exit if they didn't
+        try:
+            with open(filename) as f:
+                address = 0
 
-        with open(filename) as f:
-            address = 0
-
-            for line in f:
-                
-                line = line.split("#")
-
-                try:
-                    instruction = int(line[0], 2)
-                except ValueError:
-                    continue
+                for line in f:
                     
-                self.ram[address] = instruction
+                    line = line.split("#")
 
-                address += 1
+                    try:
+                        instruction = int(line[0], 2)
+                    except ValueError:
+                        continue
+                        
+                    self.ram[address] = instruction
+
+                    address += 1
+        except FileNotFoundError:
+            print(f'File: {filename} is not found.')
+            sys.exit(1)
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
