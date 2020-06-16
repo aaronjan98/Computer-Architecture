@@ -7,8 +7,8 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        self.reg = [i * [0] for i in range(8)]
-        self.ram = [i * [0] for i in range(256)]
+        self.reg = [i * 0 for i in range(8)]
+        self.ram = [i * 0 for i in range(256)]
         self.pc = 0
 
     def load(self):
@@ -20,7 +20,7 @@ class CPU:
 
         program = [
             # From print8.ls8
-            0b10000010, # LDI R0,8
+            0b10000010, # LDI R0, 8
             0b00000000,
             0b00001000,
             0b01000111, # PRN R0
@@ -62,15 +62,35 @@ class CPU:
 
         print()
 
-    # Memory Data Register (MDR)
-    def ram_read(self, MDR):
-        return self.ram[MDR]
-
     # Memory Address Register (MAR)
-    def ram_write(self, MAR):
-        self.ram[self.pc] = MAR
+    def ram_read(self, MAR):
+        return self.ram[MAR]
+
+    # Memory Data Register (MDR)
+    def ram_write(self, MDR, MAR):
+        self.ram[MAR] = MDR
 
     def run(self):
         """Run the CPU."""
-        # rn ram is filled w/ zeros
-        self.load()
+        # read the memory address that's stored in register PC, and store that result in the Instruction Register. 
+        running = True
+
+        while running:
+            ir = self.ram_read(self.pc)
+
+            # opcode's arguments
+            operand_a = self.ram_read(self.pc+1)
+            operand_b = self.ram_read(self.pc+2)
+
+            if ir == 0b10000010: # LDI
+                self.reg[operand_a] = operand_b
+                self.pc += 3
+            elif ir == 0b01000111: # PRN
+                print(self.reg[operand_a])
+                self.pc += 2
+            elif ir == 0b00000001: # HLT
+                running = False
+                self.pc += 1
+            else:
+                print(f'Unknown instruction {ir} at address {self.pc}')
+                sys.exit(1)
