@@ -20,18 +20,18 @@ class CPU:
         
     def LDI(self, *argv):
         self.reg[argv[0]] = argv[1]
-        self.pc += 3
+        self.pc += argv[2]
 
     def PRN(self, *argv):
         print(self.reg[argv[0]])
-        self.pc += 2
+        self.pc += argv[2]
 
     def MUL(self, *argv):
         self.alu('MUL', argv[0], argv[1])
-        self.pc += 3
+        self.pc += argv[2]
     
     def HLT(self, *argv):
-        self.pc += 1
+        self.pc += argv[2]
         return False
 
     def load(self):
@@ -112,8 +112,11 @@ class CPU:
 
             # checks if function is in the branchtable
             try:
+                # masking ir to get the first two bits that tell us the number of operands
+                num_operands = (ir & 0b11000000) >> 6
+                how_far_to_move_pc = num_operands + 1
                 # exits loop when a function returns False
-                if self.branchtable[ir](operand_a, operand_b) == False:
+                if self.branchtable[ir](operand_a, operand_b, how_far_to_move_pc) == False:
                     running = False
                 else:
                     running = True
