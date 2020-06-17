@@ -15,7 +15,9 @@ class CPU:
             0b10000010: self.LDI,
             0b01000111: self.PRN,
             0b10100010: self.MUL,
-            0b00000001: self.HLT
+            0b00000001: self.HLT,
+            0b01000101: self.PUSH,
+            0b01000110: self.POP
         }
         
     def LDI(self, *argv):
@@ -33,6 +35,35 @@ class CPU:
     def HLT(self, *argv):
         self.pc += argv[2]
         return False
+    
+    def PUSH(self, *argv):
+		# decrement SP
+        self.reg[argv[3]] -= 1
+
+		# Get the value we want to store from the register
+        reg_num = self.ram[self.pc + 1]
+        value = self.reg[reg_num]  # <-- this is the value that we want to push
+
+		# Figure out where to store it; argv[3] == SP
+        top_of_stack_addr = self.reg[argv[3]]
+
+		# Store it
+        self.ram[top_of_stack_addr] = value
+
+        self.pc += argv[2]
+    
+    # argv = [operand_a, operand_b, how_far_to_move_pc, SP]
+    def POP(self, *argv):
+        # register 7 holds the address of the value we want to pop off
+        address = self.reg[argv[3]]
+        # we're getting the value by indexing it from ram by the address
+        value = self.ram[address]
+        # set value to the operand register of the program
+        self.reg[argv[0]] = value
+
+        # increment SP
+        self.reg[argv[3]] += 1
+        self.pc += argv[2]
 
     def load(self):
         """Load a program into memory."""
@@ -102,6 +133,8 @@ class CPU:
         """Run the CPU."""
         # read the memory address that's stored in register PC, and store that result in the Instruction Register. 
         running = True
+        SP = 7
+        self.reg[SP] = 0xF4
 
         while running:
             ir = self.ram_read(self.pc)
@@ -116,7 +149,7 @@ class CPU:
                 num_operands = (ir & 0b11000000) >> 6
                 how_far_to_move_pc = num_operands + 1
                 # exits loop when a function returns False
-                if self.branchtable[ir](operand_a, operand_b, how_far_to_move_pc) == False:
+                if self.branchtable[ir](operand_a, operand_b, how_far_to_move_pc, SP) == False:
                     running = False
                 else:
                     running = True
