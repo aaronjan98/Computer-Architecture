@@ -11,13 +11,31 @@ class CPU:
         self.ram = [i * 0 for i in range(256)]
         self.pc = 0
 
+        self.branchtable = {
+            0b10000010: self.LDI,
+            0b01000111: self.PRN,
+            0b10100010: self.MUL,
+            0b00000001: self.HLT
+        }
+        
+    def LDI(self, *argv):
+        self.reg[argv[0]] = argv[1]
+        self.pc += 3
+
+    def PRN(self, *argv):
+        print(self.reg[argv[0]])
+        self.pc += 2
+
+    def MUL(self, *argv):
+        self.alu('MUL', argv[0], argv[1])
+        self.pc += 3
+    
+    def HLT(self, *argv):
+        self.pc += 1
+        return False
+
     def load(self):
         """Load a program into memory."""
-
-        # address = 0
-
-        # For now, we've just hardcoded a program:
-
         filename = sys.argv[1]
 
         # check to make sure the user has put a command line argument where you expect, and print an error and exit if they didn't
@@ -92,18 +110,13 @@ class CPU:
             operand_a = self.ram_read(self.pc+1)
             operand_b = self.ram_read(self.pc+2)
 
-            if ir == 0b10000010: # LDI
-                self.reg[operand_a] = operand_b
-                self.pc += 3
-            elif ir == 0b01000111: # PRN
-                print(self.reg[operand_a])
-                self.pc += 2
-            elif ir == 0b10100010: # MUL
-                self.alu('MUL', operand_a, operand_b)
-                self.pc += 3
-            elif ir == 0b00000001: # HLT
-                running = False
-                self.pc += 1
-            else:
+            # checks if function is in the branchtable
+            try:
+                # exits loop when a function returns False
+                if self.branchtable[ir](operand_a, operand_b) == False:
+                    running = False
+                else:
+                    running = True
+            except KeyError:
                 print(f'Unknown instruction {ir} at address {self.pc}')
                 sys.exit(1)
