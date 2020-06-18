@@ -17,7 +17,9 @@ class CPU:
             0b10100010: self.MUL,
             0b00000001: self.HLT,
             0b01000101: self.PUSH,
-            0b01000110: self.POP
+            0b01000110: self.POP,
+            0b01010000: self.CALL,
+            0b00010001: self.RET
         }
         
     def LDI(self, *argv):
@@ -64,6 +66,21 @@ class CPU:
         # increment SP
         self.reg[argv[3]] += 1
         self.pc += argv[2]
+        
+    # argv = [operand_a, operand_b, how_far_to_move_pc, SP]
+    def CALL(self, *argv):
+        return_addr = argv[1]  # Where we're going to RET to
+
+		# Push on the stack
+        self.reg[argv[3]] -= 1
+        self.ram[self.reg[argv[3]]] = return_addr
+
+		# Get the address to call
+        reg_num = self.ram[argv[0]]
+        subroutine_addr = self.reg[reg_num]
+
+		# Call it
+        self.pc = subroutine_addr
 
     def load(self):
         """Load a program into memory."""
